@@ -1,0 +1,917 @@
+PASSO A PASSO DA SEGUNDA PESSOA
+
+Este arquivo foi atualizado com base no estado atual do projeto.
+
+Ele serve para registrar tudo o que ainda falta fazer no frontend.
+
+Objetivo da segunda pessoa:
+
+- pegar a base que ja foi montada
+- transformar as telas em telas funcionais
+- ligar o frontend na API
+- manter a estrutura organizada
+- continuar sem focar em layout bonito
+
+Importante:
+
+- a prioridade agora e funcionalidade
+- nao e momento de refinar design
+- o visual pode continuar simples
+- o mais importante e fazer as telas usarem dados reais e formularios reais
+
+--------------------------------------------------
+1. O QUE JA EXISTE HOJE NO PROJETO
+--------------------------------------------------
+
+ESTRUTURA GERAL PRONTA
+
+Ja existe uma estrutura base para a area logada:
+
+- frontend/app/(system)/layout.tsx
+- frontend/components/Header/index.tsx
+- frontend/components/Sidebar/index.tsx
+- frontend/components/Footer/index.tsx
+- frontend/components/PageIntro/index.tsx
+- frontend/components/SectionCard/index.tsx
+
+Essa base ja entrega:
+
+- header simples
+- menu lateral simples
+- footer simples
+- area principal de conteudo
+- componentes reutilizaveis para topo de pagina e blocos de conteudo
+
+ROTAS QUE JA EXISTEM
+
+As seguintes paginas ja foram criadas:
+
+- /home
+- /produtos
+- /clientes
+- /orcamentos
+- /usuario
+
+ESTADO ATUAL DE CADA PAGINA
+
+/home
+
+Ja esta conectada na API.
+
+Hoje a home ja consome:
+
+- /api/dashboard/resumo
+- /api/dashboard/orcamentos-por-status
+- /api/dashboard/valor-orcado-por-mes
+- /api/dashboard/top-clientes-orcamentos
+- /api/dashboard/top-produtos-orcados
+
+/produtos
+
+Ja existe a tela.
+
+Hoje ela tem:
+
+- titulo
+- descricao
+- tabela fake com dados de exemplo
+- formulario base
+- botoes fake de editar, excluir, salvar e limpar
+
+Mas ainda nao fala com a API.
+
+/clientes
+
+Ja existe a tela.
+
+Hoje ela tem:
+
+- titulo
+- descricao
+- tabela fake com dados de exemplo
+- formulario base
+- botoes fake de editar, excluir, salvar e cancelar
+
+Mas ainda nao fala com a API.
+
+/orcamentos
+
+Ja existe a tela.
+
+Hoje ela tem:
+
+- titulo
+- descricao
+- tabela fake com dados de exemplo
+- formulario base
+- select fake de clientes
+- area placeholder para itens do orcamento
+- botoes fake
+
+Mas ainda nao fala com a API.
+
+/usuario
+
+Ja existe a tela.
+
+Hoje ela tem:
+
+- titulo
+- descricao
+- formulario base de perfil
+- formulario base de troca de senha
+- campos preenchidos com valores fixos
+
+Mas ainda nao fala com a API.
+
+--------------------------------------------------
+2. ARQUIVOS QUE A SEGUNDA PESSOA DEVE REVISAR
+--------------------------------------------------
+
+FRONTEND
+
+- frontend/app/(system)/home/page.tsx
+- frontend/app/(system)/produtos/page.tsx
+- frontend/app/(system)/clientes/page.tsx
+- frontend/app/(system)/orcamentos/page.tsx
+- frontend/app/(system)/usuario/page.tsx
+- frontend/components/PageIntro/index.tsx
+- frontend/components/SectionCard/index.tsx
+- frontend/lib/api-server.ts
+- frontend/app/globals.css
+
+API
+
+- api/README-API.md
+
+--------------------------------------------------
+3. ORDEM RECOMENDADA DE TRABALHO
+--------------------------------------------------
+
+Fazer nesta ordem:
+
+1. Revisar e ajustar a home
+2. Implementar produtos
+3. Implementar clientes
+4. Implementar usuario
+5. Implementar orcamentos
+6. Revisar consistencia geral
+
+--------------------------------------------------
+4. O QUE FALTA NA HOME /HOME
+--------------------------------------------------
+
+Arquivo atual:
+
+- frontend/app/(system)/home/page.tsx
+
+O que ja esta feito:
+
+- busca dados reais do dashboard
+- mostra cards de resumo
+- mostra status dos orcamentos
+- mostra valores por mes
+- mostra top clientes
+- mostra top produtos
+
+O que ainda falta:
+
+- revisar ortografia e padronizacao dos textos da pagina inteira
+- revisar acentuacao se o grupo quiser deixar mais correto
+- decidir se quer continuar com os comentarios simples ou limpar parte deles
+- melhorar a apresentacao dos dados sem entrar em design final
+- avaliar se tambem vale usar a rota /api/dashboard/orcamentos-por-mes
+
+Pendencias reais da home:
+
+1. Verificar se a pagina deve continuar com listas simples ou se deve trocar alguma secao por tabela simples.
+2. Confirmar se o card "Ultimo valor por mes" e realmente o dado desejado pelo trabalho.
+3. Se o professor esperar quantidade por mes, integrar tambem:
+   - /api/dashboard/orcamentos-por-mes
+4. Melhorar o estado de erro da pagina.
+5. Revisar os nomes exibidos na tela.
+
+CODIGO EXEMPLO PARA AJUSTAR A HOME
+
+Arquivo sugerido:
+
+- frontend/app/(system)/home/page.tsx
+
+Exemplo de trecho para adicionar a serie de quantidade por mes:
+
+```tsx
+type QuantidadePorMes = {
+  ano: number
+  mes: number
+  total: number
+}
+
+const quantidadeRes = await apiServerFetch(`/dashboard/orcamentos-por-mes?ano=${anoAtual}`, {
+  cache: 'no-store',
+})
+
+const quantidadePorMes =
+  quantidadeRes.ok
+    ? ((await quantidadeRes.json()) as QuantidadePorMes[])
+    : []
+```
+
+Exemplo de bloco para renderizar essa informacao:
+
+```tsx
+<SectionCard title="Quantidade por mes">
+  <div className="placeholder-block">
+    <ul className="mb-0">
+      {quantidadePorMes.map((item) => (
+        <li key={`${item.ano}-${item.mes}`}>
+          Mes {item.mes}: {item.total}
+        </li>
+      ))}
+    </ul>
+  </div>
+</SectionCard>
+```
+
+--------------------------------------------------
+5. O QUE FALTA NA TELA DE PRODUTOS
+--------------------------------------------------
+
+Arquivo atual:
+
+- frontend/app/(system)/produtos/page.tsx
+
+O que ja esta feito:
+
+- estrutura da pagina pronta
+- tabela pronta
+- formulario base pronto
+- botoes visiveis
+
+O que ainda falta:
+
+- trocar dados fake por dados reais
+- criar fluxo de cadastro
+- criar fluxo de edicao
+- criar fluxo de exclusao
+- criar busca ou filtro, se desejado
+
+API disponivel:
+
+- GET /api/produtos
+- POST /api/produtos
+- GET /api/produtos/:id
+- PATCH /api/produtos/:id
+- DELETE /api/produtos/:id
+
+Filtros opcionais:
+
+- GET /api/produtos?nome=...&ativo=true
+
+Pendencias detalhadas de produtos:
+
+- adicionar campo de unidade
+- adicionar campo de ativo
+- decidir se ativo vai ser checkbox ou select
+- fazer o botao editar preencher o formulario com o item escolhido
+- fazer o botao excluir chamar a remocao real
+- atualizar a tabela depois de salvar, editar ou excluir
+
+CODIGO EXEMPLO PARA A TELA DE PRODUTOS
+
+Arquivo sugerido:
+
+- frontend/app/(system)/produtos/actions.ts
+
+Exemplo de action para criar produto:
+
+```tsx
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { apiServerFetch } from '@/lib/api-server'
+
+export async function criarProduto(formData: FormData) {
+  const payload = {
+    nome: String(formData.get('nome') ?? ''),
+    codigoSku: String(formData.get('codigoSku') ?? ''),
+    descricao: String(formData.get('descricao') ?? ''),
+    precoUnitario: Number(formData.get('precoUnitario') ?? 0),
+    unidade: String(formData.get('unidade') ?? 'UN'),
+    ativo: formData.get('ativo') === 'on',
+  }
+
+  const response = await apiServerFetch('/produtos', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao criar produto')
+  }
+
+  revalidatePath('/produtos')
+}
+```
+
+Exemplo de tipo para produto:
+
+```ts
+export type Produto = {
+  id: number
+  codigoSku: string | null
+  nome: string
+  descricao: string | null
+  precoUnitario: number
+  unidade: string
+  ativo: boolean
+}
+```
+
+Exemplo de busca real na page:
+
+```tsx
+const response = await apiServerFetch('/produtos', { cache: 'no-store' })
+const produtos = response.ok ? ((await response.json()) as Produto[]) : []
+```
+
+Exemplo de campos que ainda precisam entrar no formulario:
+
+```tsx
+<div>
+  <label htmlFor="produtoUnidade" className="form-label">
+    unidade
+  </label>
+  <input id="produtoUnidade" name="unidade" className="form-control" />
+</div>
+
+<div className="form-check">
+  <input id="produtoAtivo" name="ativo" type="checkbox" className="form-check-input" />
+  <label htmlFor="produtoAtivo" className="form-check-label">
+    ativo
+  </label>
+</div>
+```
+
+--------------------------------------------------
+6. O QUE FALTA NA TELA DE CLIENTES
+--------------------------------------------------
+
+Arquivo atual:
+
+- frontend/app/(system)/clientes/page.tsx
+
+O que ja esta feito:
+
+- estrutura da pagina pronta
+- tabela pronta
+- formulario base pronto
+- botoes visiveis
+
+O que ainda falta:
+
+- trocar dados fake por dados reais
+- criar fluxo de cadastro
+- criar fluxo de edicao
+- criar fluxo de exclusao
+
+API disponivel:
+
+- GET /api/clientes
+- POST /api/clientes
+- GET /api/clientes/:id
+- PATCH /api/clientes/:id
+- DELETE /api/clientes/:id
+
+Filtros opcionais:
+
+- GET /api/clientes?nome=...&documento=...
+
+Pendencias detalhadas de clientes:
+
+- revisar se documento aceita CPF e CNPJ sem mascara
+- decidir se vai aplicar mascara ou deixar simples
+- preencher o formulario ao editar
+- atualizar a tabela depois das alteracoes
+- decidir se precisa filtro por nome/documento na mesma tela
+
+CODIGO EXEMPLO PARA A TELA DE CLIENTES
+
+Arquivo sugerido:
+
+- frontend/app/(system)/clientes/actions.ts
+
+Exemplo de action para criar cliente:
+
+```tsx
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { apiServerFetch } from '@/lib/api-server'
+
+export async function criarCliente(formData: FormData) {
+  const payload = {
+    nome: String(formData.get('nome') ?? ''),
+    documento: String(formData.get('documento') ?? ''),
+    email: String(formData.get('email') ?? ''),
+    telefone: String(formData.get('telefone') ?? ''),
+    observacoes: String(formData.get('observacoes') ?? ''),
+  }
+
+  const response = await apiServerFetch('/clientes', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao criar cliente')
+  }
+
+  revalidatePath('/clientes')
+}
+```
+
+Exemplo de tipo para cliente:
+
+```ts
+export type Cliente = {
+  id: number
+  nome: string
+  documento: string | null
+  email: string | null
+  telefone: string | null
+  observacoes: string | null
+}
+```
+
+Exemplo de busca real na page:
+
+```tsx
+const response = await apiServerFetch('/clientes', { cache: 'no-store' })
+const clientes = response.ok ? ((await response.json()) as Cliente[]) : []
+```
+
+--------------------------------------------------
+7. O QUE FALTA NA TELA DE USUARIO
+--------------------------------------------------
+
+Arquivo atual:
+
+- frontend/app/(system)/usuario/page.tsx
+
+O que ja esta feito:
+
+- estrutura da pagina pronta
+- dois blocos separados
+- formulario de perfil
+- formulario de troca de senha
+
+O que ainda falta:
+
+- buscar os dados reais do usuario logado
+- remover os valores fixos do formulario
+- salvar alteracoes reais
+- trocar a senha de verdade
+
+API disponivel:
+
+- GET /api/usuarios/atual
+- PATCH /api/usuarios/atual
+- PATCH /api/usuarios/atual/senha
+
+Pendencias detalhadas de usuario:
+
+- trocar "Usuario Demonstracao" por dado real
+- trocar "demo@sistema.local" por dado real
+- manter perfil apenas leitura
+- validar confirmacao de senha no frontend antes de enviar
+- tratar erro de senha atual incorreta
+
+CODIGO EXEMPLO PARA A TELA DE USUARIO
+
+Arquivo sugerido:
+
+- frontend/app/(system)/usuario/actions.ts
+
+Exemplo para atualizar perfil:
+
+```tsx
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { apiServerFetch } from '@/lib/api-server'
+
+export async function atualizarUsuario(formData: FormData) {
+  const payload = {
+    nomeCompleto: String(formData.get('nomeCompleto') ?? ''),
+    email: String(formData.get('email') ?? ''),
+  }
+
+  const response = await apiServerFetch('/usuarios/atual', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao atualizar usuario')
+  }
+
+  revalidatePath('/usuario')
+}
+```
+
+Exemplo para atualizar senha:
+
+```tsx
+'use server'
+
+import { apiServerFetch } from '@/lib/api-server'
+
+export async function atualizarSenha(formData: FormData) {
+  const novaSenha = String(formData.get('novaSenha') ?? '')
+  const confirmarSenha = String(formData.get('confirmarSenha') ?? '')
+
+  if (novaSenha !== confirmarSenha) {
+    throw new Error('As senhas nao conferem')
+  }
+
+  const payload = {
+    senhaAtual: String(formData.get('senhaAtual') ?? ''),
+    novaSenha,
+  }
+
+  const response = await apiServerFetch('/usuarios/atual/senha', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao atualizar senha')
+  }
+}
+```
+
+Exemplo de tipo para usuario:
+
+```ts
+export type UsuarioAtual = {
+  id: number
+  nomeCompleto: string
+  email: string
+  perfil: string
+  ativo: boolean
+}
+```
+
+--------------------------------------------------
+8. O QUE FALTA NA TELA DE ORCAMENTOS
+--------------------------------------------------
+
+Arquivo atual:
+
+- frontend/app/(system)/orcamentos/page.tsx
+
+O que ja esta feito:
+
+- estrutura da pagina pronta
+- tabela pronta
+- formulario inicial pronto
+- area reservada para itens
+
+O que ainda falta:
+
+- trocar dados fake por dados reais
+- carregar clientes reais no select
+- carregar produtos reais para os itens
+- permitir adicionar itens de verdade
+- calcular totais
+- salvar orcamento
+- editar orcamento
+- talvez visualizar orcamento detalhado
+
+API disponivel:
+
+- GET /api/orcamentos
+- GET /api/orcamentos/:id
+- POST /api/orcamentos
+- PATCH /api/orcamentos/:id
+
+Filtros opcionais:
+
+- GET /api/orcamentos?mes=5&ano=2026&situacao=pendente
+
+Campos importantes do payload:
+
+- clienteId
+- valorDesconto
+- validoAte
+- observacoes
+- situacao
+- itens
+
+Cada item pode ter:
+
+- produtoId
+- quantidade
+- precoUnitario
+
+Pendencias detalhadas de orcamentos:
+
+- hoje nao existe campo de desconto na tela
+- hoje nao existe campo de situacao na tela
+- hoje nao existe listagem real de itens
+- hoje nao existe botao funcional para adicionar item
+- hoje nao existe calculo de subtotal
+- hoje nao existe calculo de total
+- hoje nao existe integracao para o botao ver
+- hoje nao existe integracao para o botao editar
+
+Campos que precisam ser adicionados na UI:
+
+- valorDesconto
+- situacao
+- composicao real dos itens
+- subtotal
+- total final
+
+CODIGO EXEMPLO PARA A TELA DE ORCAMENTOS
+
+Arquivo sugerido:
+
+- frontend/app/(system)/orcamentos/actions.ts
+
+Exemplo de tipo para item:
+
+```ts
+export type ItemOrcamentoPayload = {
+  produtoId: number
+  quantidade: number
+  precoUnitario?: number
+}
+```
+
+Exemplo de payload de criacao:
+
+```ts
+const payload = {
+  clienteId: 1,
+  valorDesconto: 0,
+  validoAte: '2026-12-31',
+  observacoes: 'teste',
+  situacao: 'pendente',
+  itens: [
+    {
+      produtoId: 1,
+      quantidade: 2,
+      precoUnitario: 100,
+    },
+  ],
+}
+```
+
+Exemplo de action para criar:
+
+```tsx
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { apiServerFetch } from '@/lib/api-server'
+
+export async function criarOrcamento(payload: {
+  clienteId: number
+  valorDesconto: number
+  validoAte?: string
+  observacoes?: string
+  situacao: string
+  itens: Array<{
+    produtoId: number
+    quantidade: number
+    precoUnitario?: number
+  }>
+}) {
+  const response = await apiServerFetch('/orcamentos', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao criar orcamento')
+  }
+
+  revalidatePath('/orcamentos')
+}
+```
+
+Exemplo de componentes que podem ser criados depois:
+
+- TabelaOrcamentos
+- FormularioOrcamento
+- ItensOrcamento
+- LinhaItemOrcamento
+
+Exemplo de UI que ainda precisa ser montada:
+
+```tsx
+<div>
+  <label htmlFor="valorDesconto" className="form-label">
+    desconto
+  </label>
+  <input id="valorDesconto" name="valorDesconto" type="number" step="0.01" className="form-control" />
+</div>
+
+<div>
+  <label htmlFor="situacao" className="form-label">
+    situacao
+  </label>
+  <select id="situacao" name="situacao" className="form-select" defaultValue="pendente">
+    <option value="pendente">pendente</option>
+    <option value="enviado">enviado</option>
+    <option value="aprovado">aprovado</option>
+    <option value="rejeitado">rejeitado</option>
+    <option value="cancelado">cancelado</option>
+  </select>
+</div>
+```
+
+--------------------------------------------------
+9. O QUE FALTA NA ESTRUTURA GERAL
+--------------------------------------------------
+
+HEADER
+
+Arquivo:
+
+- frontend/components/Header/index.tsx
+
+Estado atual:
+
+- simples
+- mostra "Sistema sem nome"
+
+O que ainda pode faltar:
+
+- decidir se vai manter esse texto
+- decidir se vai mostrar nome do usuario logado
+- decidir se vai manter so um titulo simples
+
+SIDEBAR
+
+Arquivo:
+
+- frontend/components/Sidebar/index.tsx
+
+Estado atual:
+
+- links ja existem
+- logout ja existe
+
+Pendencias:
+
+- revisar textos estranhos que ainda estiverem sobrando
+- decidir se quer destacar rota ativa
+
+FOOTER
+
+Arquivo:
+
+- frontend/components/Footer/index.tsx
+
+Estado atual:
+
+- simples
+- mostra "Footer do Sistema sem nome"
+
+Pendencias:
+
+- decidir se isso vai continuar assim
+- revisar se quer incluir texto institucional, nome da disciplina ou ano
+
+--------------------------------------------------
+10. COMO IMPLEMENTAR AS INTEGRACOES
+--------------------------------------------------
+
+BUSCAR DADOS NO SERVIDOR
+
+Quando a pagina for um Server Component, usar:
+
+- apiServerFetch em frontend/lib/api-server.ts
+
+ENVIAR FORMULARIOS
+
+Preferencia do projeto:
+
+- criar actions.ts na pasta da pagina
+
+Sugestao:
+
+- frontend/app/(system)/produtos/actions.ts
+- frontend/app/(system)/clientes/actions.ts
+- frontend/app/(system)/orcamentos/actions.ts
+- frontend/app/(system)/usuario/actions.ts
+
+--------------------------------------------------
+11. TIPOS QUE AINDA FALTAM OU PRECISAM SER REVISTOS
+--------------------------------------------------
+
+Hoje o projeto ainda precisa confirmar a existencia de tipos especificos para:
+
+- produto
+- cliente
+- orcamento
+- item de orcamento
+- usuario atual
+- dashboard
+
+Mesmo que alguns tipos ja existam em frontend/types/, a segunda pessoa deve revisar.
+
+Se nao existirem, criar.
+
+--------------------------------------------------
+12. O QUE NAO DEVE SER PRIORIDADE AGORA
+--------------------------------------------------
+
+Nao gastar tempo principal com:
+
+- animacao
+- design refinado
+- paleta final
+- responsividade muito polida
+- componentes muito sofisticados
+
+Pode deixar:
+
+- visual simples
+- botoes basicos
+- tabelas simples
+- formularios diretos
+
+--------------------------------------------------
+13. CHECKLIST COMPLETO DA SEGUNDA PESSOA
+--------------------------------------------------
+
+DASHBOARD
+
+- home carrega sem erro
+- home usa dados reais
+- textos revisados
+- estado de erro revisado
+- decidir se vai usar tambem orcamentos-por-mes
+
+PRODUTOS
+
+- lista real carregando
+- formulario funcionando
+- unidade adicionada
+- ativo adicionado
+- editar funcionando
+- excluir funcionando
+
+CLIENTES
+
+- lista real carregando
+- formulario funcionando
+- editar funcionando
+- excluir funcionando
+
+USUARIO
+
+- dados reais carregando
+- perfil atualizando
+- senha atualizando
+- confirmacao de senha validada
+
+ORCAMENTOS
+
+- lista real carregando
+- clientes reais no select
+- produtos reais nos itens
+- adicionar item funcionando
+- subtotal funcionando
+- desconto funcionando
+- total funcionando
+- criar funcionando
+- editar funcionando
+
+ESTRUTURA GERAL
+
+- sidebar com textos corrigidos
+- pages organizadas
+- components organizados
+- actions criadas
+- types revisados
+
+--------------------------------------------------
+14. RESULTADO ESPERADO AO FINAL DA SEGUNDA PESSOA
+--------------------------------------------------
+
+Quando a segunda pessoa terminar, o frontend deve estar assim:
+
+- login funcionando
+- area interna funcionando
+- dashboard funcionando com dados reais
+- produtos funcionando com CRUD
+- clientes funcionando com CRUD
+- usuario funcionando com perfil e senha
+- orcamentos funcionando com itens e calculos
+- codigo ainda simples, mas organizado
+
+Se alguma dessas partes nao estiver pronta, isso deve ser tratado como pendencia real do projeto.
