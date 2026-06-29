@@ -1,28 +1,50 @@
-// pagina de usuario
-import PageIntro from "@/components/PageIntro";
-import SectionCard from "@/components/SectionCard";
+import PageIntro from '@/components/PageIntro'
+import SectionCard from '@/components/SectionCard'
+import { apiServerFetch } from '@/lib/api-server'
+import { UsuarioAtual, atualizarUsuario, atualizarSenha } from './actions'
 
-export default function UsuarioPage() {
+async function getUsuarioAtual() {
+  const response = await apiServerFetch('/usuarios/atual', { cache: 'no-store' })
+  return response.ok ? ((await response.json()) as UsuarioAtual) : null
+}
+
+export default async function UsuarioPage() {
+  const usuario = await getUsuarioAtual()
+
+  if (!usuario) {
+    return (
+      <div className="page-content">
+        <PageIntro
+          title="Usuário"
+          description="Não foi possível carregar os dados do usuário."
+        />
+        <SectionCard title="Erro ao obter usuário">
+          <p className="mb-0">Verifique se você está autenticado e tente novamente.</p>
+        </SectionCard>
+      </div>
+    )
+  }
+
   return (
     <div className="page-content">
       <PageIntro
-        title="Aqui e a tela de usuario"
-        description="aqui vai a parte do usuario"
-        primaryActionLabel="salvar alteracoes"
+        title="Usuário"
+        description="Atualize seus dados de perfil e senha."
       />
 
       <div className="page-grid page-grid--two-columns">
-        <SectionCard title="Aqui vai os dados do usuario">
-          <form className="form-stack">
+        <SectionCard title="Dados do usuário">
+          <form action={atualizarUsuario} className="form-stack">
             <div>
               <label htmlFor="usuarioNome" className="form-label">
-                nome completo
+                Nome completo
               </label>
               <input
                 id="usuarioNome"
                 name="nomeCompleto"
                 className="form-control"
-                defaultValue="Usuario Demonstracao"
+                defaultValue={usuario.nomeCompleto}
+                required
               />
             </div>
 
@@ -35,39 +57,49 @@ export default function UsuarioPage() {
                 name="email"
                 type="email"
                 className="form-control"
-                defaultValue="demo@sistema.local"
+                defaultValue={usuario.email}
+                required
               />
             </div>
 
             <div>
               <label htmlFor="usuarioPerfil" className="form-label">
-                perfil
+                Perfil
               </label>
               <input
                 id="usuarioPerfil"
                 name="perfil"
                 className="form-control"
-                defaultValue="operador"
+                defaultValue={usuario.perfil}
                 disabled
               />
+            </div>
+
+            <div className="d-flex gap-2">
+              <button type="submit" className="btn btn-primary">
+                salvar alterações
+              </button>
+              <button type="reset" className="btn btn-outline-secondary">
+                limpar
+              </button>
             </div>
           </form>
         </SectionCard>
 
-        <SectionCard title="Aqui vai a troca de senha">
-          <form className="form-stack">
+        <SectionCard title="Troca de senha">
+          <form action={atualizarSenha} className="form-stack">
             <div>
               <label htmlFor="senhaAtual" className="form-label">
-                senha atual
+                Senha atual
               </label>
-              <input id="senhaAtual" name="senhaAtual" type="password" className="form-control" />
+              <input id="senhaAtual" name="senhaAtual" type="password" className="form-control" required />
             </div>
 
             <div>
               <label htmlFor="novaSenha" className="form-label">
                 Nova senha
               </label>
-              <input id="novaSenha" name="novaSenha" type="password" className="form-control" />
+              <input id="novaSenha" name="novaSenha" type="password" className="form-control" required />
             </div>
 
             <div>
@@ -79,14 +111,15 @@ export default function UsuarioPage() {
                 name="confirmarSenha"
                 type="password"
                 className="form-control"
+                required
               />
             </div>
 
             <div className="d-flex gap-2">
-              <button type="button" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary">
                 atualizar senha
               </button>
-              <button type="button" className="btn btn-outline-secondary">
+              <button type="reset" className="btn btn-outline-secondary">
                 limpar
               </button>
             </div>
@@ -94,5 +127,5 @@ export default function UsuarioPage() {
         </SectionCard>
       </div>
     </div>
-  );
+  )
 }
