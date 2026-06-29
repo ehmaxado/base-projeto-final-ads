@@ -1,49 +1,59 @@
-// exemplo de clientes so para a tela
-import PageIntro from "@/components/PageIntro";
-import SectionCard from "@/components/SectionCard";
+import PageIntro from '@/components/PageIntro'
+import SectionCard from '@/components/SectionCard'
+import { apiServerFetch } from '@/lib/api-server'
+import { Cliente, salvarCliente, excluirCliente } from './actions'
 
-const clientesExemplo = [
-  { nome: "cliente exemplo 1", documento: "000", telefone: "0000" },
-  { nome: "cliente exemplo 2", documento: "111", telefone: "1111" },
-];
+async function getClientes() {
+  const response = await apiServerFetch('/clientes', { cache: 'no-store' })
+  return response.ok ? ((await response.json()) as Cliente[]) : []
+}
 
-// pagina de clientes
-export default function ClientesPage() {
+export default async function ClientesPage() {
+  const clientes = await getClientes()
+
   return (
     <div className="page-content">
       <PageIntro
-        title="Aqui e a tela de clientes"
-        description="aqui vai a parte de clientes"
-        primaryActionLabel="novo cliente"
-        secondaryActionLabel="pesquisar"
+        title="Clientes"
+        description="Gerencie os clientes cadastrados no sistema."
+        primaryActionLabel="Novo cliente"
       />
 
       <div className="page-grid">
-        <SectionCard title="Aqui vai a lista de clientes">
+        <SectionCard title="Lista de clientes">
           <div className="table-responsive">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
                   <th>Nome</th>
                   <th>Documento</th>
+                  <th>Email</th>
                   <th>Telefone</th>
-                  <th>Acoes</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {clientesExemplo.map((cliente) => (
-                  <tr key={cliente.documento}>
+                {clientes.map((cliente) => (
+                  <tr key={cliente.id}>
                     <td>{cliente.nome}</td>
-                    <td>{cliente.documento}</td>
-                    <td>{cliente.telefone}</td>
+                    <td>{cliente.documento ?? '-'}</td>
+                    <td>{cliente.email ?? '-'}</td>
+                    <td>{cliente.telefone ?? '-'}</td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button type="button" className="btn btn-sm btn-outline-primary">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => window.location.href = `#cliente-${cliente.id}`}
+                        >
                           editar
                         </button>
-                        <button type="button" className="btn btn-sm btn-outline-danger">
-                          excluir
-                        </button>
+                        <form action={excluirCliente} method="post">
+                          <input type="hidden" name="id" value={cliente.id} />
+                          <button type="submit" className="btn btn-sm btn-outline-danger">
+                            excluir
+                          </button>
+                        </form>
                       </div>
                     </td>
                   </tr>
@@ -53,18 +63,20 @@ export default function ClientesPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Aqui vai o formulario de clientes">
-          <form className="form-stack">
+        <SectionCard title="Formulário de cliente">
+          <form action={salvarCliente} className="form-stack" id="cliente-form">
+            <input type="hidden" name="id" value="" />
+
             <div>
               <label htmlFor="clienteNome" className="form-label">
-                nome ou razao social
+                Nome ou razão social
               </label>
-              <input id="clienteNome" name="nome" className="form-control" />
+              <input id="clienteNome" name="nome" className="form-control" required />
             </div>
 
             <div>
               <label htmlFor="clienteDocumento" className="form-label">
-                CPF ou CNPJ
+                Documento
               </label>
               <input id="clienteDocumento" name="documento" className="form-control" />
             </div>
@@ -85,7 +97,7 @@ export default function ClientesPage() {
 
             <div>
               <label htmlFor="clienteObservacoes" className="form-label">
-                Observacoes
+                Observações
               </label>
               <textarea
                 id="clienteObservacoes"
@@ -96,10 +108,10 @@ export default function ClientesPage() {
             </div>
 
             <div className="d-flex gap-2">
-              <button type="button" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary">
                 salvar
               </button>
-              <button type="button" className="btn btn-outline-secondary">
+              <button type="reset" className="btn btn-outline-secondary">
                 cancelar
               </button>
             </div>
@@ -107,5 +119,5 @@ export default function ClientesPage() {
         </SectionCard>
       </div>
     </div>
-  );
+  )
 }
