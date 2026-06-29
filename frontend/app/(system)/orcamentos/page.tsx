@@ -1,43 +1,41 @@
-// exemplo de orcamentos so para montar a pagina
-import PageIntro from "@/components/PageIntro";
-import SectionCard from "@/components/SectionCard";
+import PageIntro from '@/components/PageIntro'
+import SectionCard from '@/components/SectionCard'
+import { apiServerFetch } from '@/lib/api-server'
+import { Cliente, Produto, salvarOrcamento } from './actions'
+import { formatMoney } from './utils'
 
-const orcamentosExemplo = [
-  { numero: "001", cliente: "cliente 1", total: "00,00", status: "pendente" },
-  { numero: "002", cliente: "cliente 2", total: "00,00", status: "aprovado" },
-];
+export default async function OrcamentosPage() {
+  const [clientes, produtos] = await Promise.all([getClientes(), getProdutos()])
+  const orcamentos = await getOrcamentos()
 
-// pagina de orcamentos
-export default function OrcamentosPage() {
   return (
     <div className="page-content">
       <PageIntro
-        title="Aqui e a tela de orcamentos"
-        description="aqui vai a parte de orcamentos"
-        primaryActionLabel="novo orcamento"
-        secondaryActionLabel="buscar"
+        title="Orçamentos"
+        description="Gerencie orçamentos, itens e status."
+        primaryActionLabel="Novo orçamento"
       />
 
       <div className="page-grid">
-        <SectionCard title="Aqui vai a lista de orcamentos">
+        <SectionCard title="Lista de orçamentos">
           <div className="table-responsive">
             <table className="table align-middle mb-0">
               <thead>
                 <tr>
-                  <th>Numero</th>
+                  <th>Número</th>
                   <th>Cliente</th>
                   <th>Total</th>
-                  <th>Status</th>
-                  <th>Acoes</th>
+                  <th>Situação</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {orcamentosExemplo.map((orcamento) => (
-                  <tr key={orcamento.numero}>
+                {orcamentos.map((orcamento) => (
+                  <tr key={orcamento.id}>
                     <td>{orcamento.numero}</td>
-                    <td>{orcamento.cliente}</td>
-                    <td>{orcamento.total}</td>
-                    <td>{orcamento.status}</td>
+                    <td>{orcamento.clienteNome}</td>
+                    <td>{formatMoney(orcamento.total)}</td>
+                    <td>{orcamento.situacao}</td>
                     <td>
                       <div className="d-flex gap-2">
                         <button type="button" className="btn btn-sm btn-outline-primary">
@@ -55,44 +53,71 @@ export default function OrcamentosPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Aqui vai o formulario de orcamentos">
-          <form className="form-stack">
+        <SectionCard title="Formulário de orçamento">
+          <form action={salvarOrcamento} className="form-stack">
+            <input type="hidden" name="id" value="" />
+
             <div>
               <label htmlFor="orcamentoCliente" className="form-label">
-                cliente
+                Cliente
               </label>
-              <select id="orcamentoCliente" name="clienteId" className="form-select" defaultValue="">
+              <select id="orcamentoCliente" name="clienteId" className="form-select" defaultValue="" required>
                 <option value="" disabled>
                   escolha um cliente
                 </option>
-                <option value="1">cliente 1</option>
-                <option value="2">cliente 2</option>
+                {clientes.map((cliente) => (
+                  <option key={cliente.id} value={cliente.id}>
+                    {cliente.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="valorDesconto" className="form-label">
+                Desconto
+              </label>
+              <input
+                id="valorDesconto"
+                name="valorDesconto"
+                type="number"
+                step="0.01"
+                className="form-control"
+                defaultValue={0}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="situacao" className="form-label">
+                Situação
+              </label>
+              <select id="situacao" name="situacao" className="form-select" defaultValue="pendente" required>
+                <option value="pendente">pendente</option>
+                <option value="enviado">enviado</option>
+                <option value="aprovado">aprovado</option>
+                <option value="rejeitado">rejeitado</option>
+                <option value="cancelado">cancelado</option>
               </select>
             </div>
 
             <div>
               <label htmlFor="orcamentoValidade" className="form-label">
-                Valido ate
+                Válido até
               </label>
               <input id="orcamentoValidade" name="validoAte" type="date" className="form-control" />
             </div>
 
             <div>
               <label htmlFor="orcamentoObservacoes" className="form-label">
-                Observacoes
+                Observações
               </label>
-              <textarea
-                id="orcamentoObservacoes"
-                name="observacoes"
-                className="form-control"
-                rows={3}
-              />
+              <textarea id="orcamentoObservacoes" name="observacoes" className="form-control" rows={3} />
             </div>
 
             <div className="items-placeholder">
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="items-placeholder-title">Aqui vai a parte dos itens</h4>
-                <button type="button" className="btn btn-outline-primary btn-sm">
+                <h4 className="items-placeholder-title">Itens do orçamento</h4>
+                <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => {}}>
                   add item
                 </button>
               </div>
@@ -103,7 +128,7 @@ export default function OrcamentosPage() {
                     <tr>
                       <th>Produto</th>
                       <th>Quantidade</th>
-                      <th>Preco</th>
+                      <th>Preço</th>
                       <th>Total</th>
                     </tr>
                   </thead>
@@ -119,10 +144,10 @@ export default function OrcamentosPage() {
             </div>
 
             <div className="d-flex gap-2">
-              <button type="button" className="btn btn-primary">
+              <button type="submit" className="btn btn-primary">
                 salvar
               </button>
-              <button type="button" className="btn btn-outline-secondary">
+              <button type="reset" className="btn btn-outline-secondary">
                 cancelar
               </button>
             </div>
@@ -130,5 +155,20 @@ export default function OrcamentosPage() {
         </SectionCard>
       </div>
     </div>
-  );
+  )
+}
+
+async function getClientes() {
+  const response = await apiServerFetch('/clientes', { cache: 'no-store' })
+  return response.ok ? ((await response.json()) as Cliente[]) : []
+}
+
+async function getProdutos() {
+  const response = await apiServerFetch('/produtos', { cache: 'no-store' })
+  return response.ok ? ((await response.json()) as Produto[]) : []
+}
+
+async function getOrcamentos() {
+  const response = await apiServerFetch('/orcamentos', { cache: 'no-store' })
+  return response.ok ? ((await response.json()) as any[]) : []
 }
