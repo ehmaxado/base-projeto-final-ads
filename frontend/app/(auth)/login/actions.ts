@@ -25,7 +25,7 @@ export async function login(
     return { error: 'Preencha email e senha.' }
   }
 
-  const backendApiUrl = process.env.BACKEND_API_URL
+  const backendApiUrl = process.env.BACKEND_API_URL ?? 'http://localhost:3001/api'
 
   const response = await fetch(`${backendApiUrl}/autenticacao/login`, {
     method: 'POST',
