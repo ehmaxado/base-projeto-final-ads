@@ -1,7 +1,9 @@
 import PageIntro from "@/components/PageIntro";
 import SectionCard from "@/components/SectionCard";
 import GraficoPizzaStatus from "@/components/GraficoPizzaStatus";
+import GraficoPalitosMes from '@/components/GraficoPalitosMes'
 import { apiServerFetch } from "@/lib/api-server";
+import GraficoTopClientes from '@/components/GraficoTopClientes/GraficoTopClientes';
 
 type DashboardResumo = {
   totalOrcamentos: number;
@@ -168,49 +170,24 @@ export default async function Home() {
           <GraficoPizzaStatus dados={data.status} />
         </SectionCard>
 
-        <SectionCard title="Quantidade de orçamentos por mês">
-          <div className="placeholder-block">
-            <ul className="mb-0">
-              {data.quantidadePorMes.length > 0 ? (
-                data.quantidadePorMes.map((item) => (
-                  <li key={`${item.ano}-${item.mes}`}>
-                    Mês {item.mes}: {item.total}
-                  </li>
-                ))
-              ) : (
-                <li>Não há dados de quantidade por mês.</li>
-              )}
-            </ul>
-          </div>
-        </SectionCard>
+      <SectionCard title="Quantidade de orçamentos por mês">
+      <div className="placeholder-block">
+        <GraficoPalitosMes dados={data.quantidadePorMes} />
+      </div>
+      </SectionCard>
       </div>
 
       <div className="page-grid">
         <SectionCard title="Valores por mês">
-          <div className="placeholder-block">
-            <ul className="mb-0">
-              {data.valorMes.map((item) => (
-                <li key={`${item.ano}-${item.mes}`}>
-                  Mês {item.mes}: {formatMoney(item.total)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </SectionCard>
+      <div className="placeholder-block">
+        <GraficoPalitosMes dados={data.valorMes} />
+      </div>
+      </SectionCard>
+        
 
         <SectionCard title="Top clientes">
           <div className="placeholder-block">
-            <ul className="mb-0">
-              {data.topClientes.length > 0 ? (
-                data.topClientes.map((item) => (
-                  <li key={item.clienteId}>
-                    {item.nome}: {item.totalOrcamentos}
-                  </li>
-                ))
-              ) : (
-                <li>Sem dados de clientes.</li>
-              )}
-            </ul>
+            <GraficoTopClientes dados={data.topClientes} />
           </div>
         </SectionCard>
       </div>
