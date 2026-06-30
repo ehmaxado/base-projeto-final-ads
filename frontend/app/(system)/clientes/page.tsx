@@ -1,7 +1,8 @@
 import PageIntro from '@/components/PageIntro'
 import SectionCard from '@/components/SectionCard'
 import { apiServerFetch } from '@/lib/api-server'
-import { Cliente, salvarCliente, excluirCliente } from './actions'
+import { Cliente, excluirCliente } from './actions'
+import ClienteModalForm from './cliente-modal-form'
 
 async function getClientes() {
   const response = await apiServerFetch('/clientes', { cache: 'no-store' })
@@ -16,11 +17,14 @@ export default async function ClientesPage() {
       <PageIntro
         title="Clientes"
         description="Gerencie os clientes cadastrados no sistema."
-        primaryActionLabel="Novo cliente"
       />
 
-      <div className="page-grid">
+      <div className="page-grid page-grid--full">
         <SectionCard title="Lista de clientes">
+          <div className="d-flex justify-content-end mb-3">
+            <ClienteModalForm />
+          </div>
+
           <div className="table-responsive">
             <table className="table align-middle mb-0">
               <thead>
@@ -41,13 +45,7 @@ export default async function ClientesPage() {
                     <td>{cliente.telefone ?? '-'}</td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => window.location.href = `#cliente-${cliente.id}`}
-                        >
-                          editar
-                        </button>
+                        <ClienteModalForm cliente={cliente} />
                         <form action={excluirCliente} method="post">
                           <input type="hidden" name="id" value={cliente.id} />
                           <button type="submit" className="btn btn-sm btn-outline-danger">
@@ -61,61 +59,6 @@ export default async function ClientesPage() {
               </tbody>
             </table>
           </div>
-        </SectionCard>
-
-        <SectionCard title="Formulário de cliente">
-          <form action={salvarCliente} className="form-stack" id="cliente-form">
-            <input type="hidden" name="id" value="" />
-
-            <div>
-              <label htmlFor="clienteNome" className="form-label">
-                Nome ou razão social
-              </label>
-              <input id="clienteNome" name="nome" className="form-control" required />
-            </div>
-
-            <div>
-              <label htmlFor="clienteDocumento" className="form-label">
-                Documento
-              </label>
-              <input id="clienteDocumento" name="documento" className="form-control" />
-            </div>
-
-            <div>
-              <label htmlFor="clienteEmail" className="form-label">
-                Email
-              </label>
-              <input id="clienteEmail" name="email" type="email" className="form-control" />
-            </div>
-
-            <div>
-              <label htmlFor="clienteTelefone" className="form-label">
-                Telefone
-              </label>
-              <input id="clienteTelefone" name="telefone" className="form-control" />
-            </div>
-
-            <div>
-              <label htmlFor="clienteObservacoes" className="form-label">
-                Observações
-              </label>
-              <textarea
-                id="clienteObservacoes"
-                name="observacoes"
-                className="form-control"
-                rows={4}
-              />
-            </div>
-
-            <div className="d-flex gap-2">
-              <button type="submit" className="btn btn-primary">
-                salvar
-              </button>
-              <button type="reset" className="btn btn-outline-secondary">
-                cancelar
-              </button>
-            </div>
-          </form>
         </SectionCard>
       </div>
     </div>

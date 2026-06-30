@@ -181,6 +181,10 @@ a {
   gap: 1.5rem;
 }
 
+.page-grid--full {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .page-grid--two-columns {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -241,18 +245,101 @@ a {
   flex-wrap: wrap;
 }
 
+.app-modal {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1.5rem;
+  border: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.app-modal::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.app-modal__surface {
+  width: min(100%, 720px);
+  margin: auto;
+  padding: 1.25rem;
+  max-height: calc(100vh - 3rem);
+  overflow: auto;
+  border-radius: 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+}
+
+.app-modal__surface--lg {
+  width: min(100%, 840px);
+}
+
+.app-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.app-modal__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.25rem;
+}
+
+.app-modal__description {
+  color: var(--text-muted);
+}
+
+.app-modal__close {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--surface-subtle);
+  color: var(--text-main);
+}
+
+.app-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.app-modal__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-modal__item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) 140px 180px 120px;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.app-modal__item-actions {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (max-width: 991px) {
   .system-body,
   .page-grid,
   .page-grid--two-columns,
-  .dashboard-grid {
+  .dashboard-grid,
+  .app-modal__item-row {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 767px) {
   .system-header,
-  .page-header {
+  .page-header,
+  .app-modal__header {
     flex-direction: column;
     align-items: stretch;
   }
@@ -261,5 +348,15 @@ a {
   .system-sidebar,
   .system-footer {
     padding: 1rem;
+  }
+
+  .app-modal {
+    padding: 0.75rem;
+  }
+
+  .app-modal__surface {
+    max-height: calc(100vh - 1.5rem);
+    padding: 1rem;
+    border-radius: 0.85rem;
   }
 }

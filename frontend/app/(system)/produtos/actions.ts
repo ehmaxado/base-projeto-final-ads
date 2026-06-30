@@ -13,7 +13,34 @@ export type Produto = {
   ativo: boolean
 }
 
-export async function salvarProduto(formData: FormData) {
+export type FormActionState = {
+  success: boolean
+  error: string
+}
+
+async function getResponseError(response: Response, fallback: string) {
+  try {
+    const data = (await response.json()) as {
+      mensagem?: string
+      detalhes?: string[]
+    }
+
+    if (Array.isArray(data.detalhes) && data.detalhes.length > 0) {
+      return data.detalhes.join(', ')
+    }
+
+    if (data.mensagem) {
+      return data.mensagem
+    }
+  } catch {}
+
+  return fallback
+}
+
+export async function salvarProduto(
+  _prevState: FormActionState,
+  formData: FormData,
+): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
   const nome = String(formData.get('nome') ?? '').trim()
   const codigoSku = String(formData.get('codigoSku') ?? '').trim() || null
@@ -21,6 +48,20 @@ export async function salvarProduto(formData: FormData) {
   const precoUnitario = Number(formData.get('precoUnitario') ?? 0)
   const unidade = String(formData.get('unidade') ?? 'UN').trim() || 'UN'
   const ativo = formData.get('ativo') === 'on'
+
+  if (!nome) {
+    return {
+      success: false,
+      error: 'Nome é obrigatório',
+    }
+  }
+
+  if (!(precoUnitario > 0)) {
+    return {
+      success: false,
+      error: 'Informe um preço unitário maior que zero',
+    }
+  }
 
   const payload = {
     nome,
@@ -40,17 +81,31 @@ export async function salvarProduto(formData: FormData) {
   })
 
   if (!response.ok) {
-    throw new Error('Erro ao salvar produto')
+    return {
+      success: false,
+      error: await getResponseError(response, 'Erro ao salvar produto'),
+    }
   }
 
   revalidatePath('/produtos')
+
+  return {
+    success: true,
+    error: '',
+  }
 }
 
-export async function excluirProduto(formData: FormData) {
+export async function excluirProduto(
+  _prevState: FormActionState,
+  formData: FormData,
+): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
 
   if (!id) {
-    throw new Error('ID do produto é obrigatório')
+    return {
+      success: false,
+      error: 'ID do produto é obrigatório',
+    }
   }
 
   const response = await apiServerFetch(`/produtos/${id}`, {
@@ -58,8 +113,16 @@ export async function excluirProduto(formData: FormData) {
   })
 
   if (!response.ok) {
-    throw new Error('Erro ao excluir produto')
+    return {
+      success: false,
+      error: await getResponseError(response, 'Erro ao excluir produto'),
+    }
   }
 
   revalidatePath('/produtos')
+
+  return {
+    success: true,
+    error: '',
+  }
 }

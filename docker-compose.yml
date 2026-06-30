@@ -47,6 +47,16 @@ services:
       CORS_ORIGIN: http://localhost:3000
       TYPEORM_LOGGING: "false"
       TYPEORM_SYNC: "false"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:3001/api/docs').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     depends_on:
       db:
         condition: service_healthy
@@ -64,7 +74,8 @@ services:
       NODE_ENV: production
       BACKEND_API_URL: http://api:3001/api
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
 volumes:
   pgdata:

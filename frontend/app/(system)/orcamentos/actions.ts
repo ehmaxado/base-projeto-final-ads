@@ -38,7 +38,34 @@ export type OrcamentoPayload = {
   itens: OrcamentoItemPayload[]
 }
 
-export async function salvarOrcamento(formData: FormData) {
+export type FormActionState = {
+  success: boolean
+  error: string
+}
+
+async function getResponseError(response: Response, fallback: string) {
+  try {
+    const data = (await response.json()) as {
+      mensagem?: string
+      detalhes?: string[]
+    }
+
+    if (Array.isArray(data.detalhes) && data.detalhes.length > 0) {
+      return data.detalhes.join(', ')
+    }
+
+    if (data.mensagem) {
+      return data.mensagem
+    }
+  } catch {}
+
+  return fallback
+}
+
+export async function salvarOrcamento(
+  _prevState: FormActionState,
+  formData: FormData,
+): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
   const clienteId = Number(formData.get('clienteId') ?? 0)
   const valorDesconto = Number(formData.get('valorDesconto') ?? 0)
@@ -69,11 +96,17 @@ export async function salvarOrcamento(formData: FormData) {
     .filter((item): item is OrcamentoItemPayload => item !== null)
 
   if (!clienteId) {
-    throw new Error('Selecione um cliente para o orçamento')
+    return {
+      success: false,
+      error: 'Selecione um cliente para o orçamento',
+    }
   }
 
   if (itens.length === 0) {
-    throw new Error('Adicione pelo menos um item ao orçamento')
+    return {
+      success: false,
+      error: 'Adicione pelo menos um item ao orçamento',
+    }
   }
 
   const payload: OrcamentoPayload = {
@@ -94,8 +127,16 @@ export async function salvarOrcamento(formData: FormData) {
   })
 
   if (!response.ok) {
-    throw new Error('Erro ao salvar orçamento')
+    return {
+      success: false,
+      error: await getResponseError(response, 'Erro ao salvar orçamento'),
+    }
   }
 
   revalidatePath('/orcamentos')
+
+  return {
+    success: true,
+    error: '',
+  }
 }

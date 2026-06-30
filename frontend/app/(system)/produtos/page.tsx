@@ -1,8 +1,9 @@
-import { cookies } from 'next/headers'
 import PageIntro from '@/components/PageIntro'
 import SectionCard from '@/components/SectionCard'
 import { apiServerFetch } from '@/lib/api-server'
-import { Produto, salvarProduto, excluirProduto } from './actions'
+import { Produto } from './actions'
+import ExcluirProdutoButton from './excluir-produto-button'
+import ProdutoModalForm from './produto-modal-form'
 
 async function getProdutos() {
   const response = await apiServerFetch('/produtos', { cache: 'no-store' })
@@ -24,11 +25,14 @@ export default async function ProdutosPage() {
       <PageIntro
         title="Produtos"
         description="Gerencie os produtos cadastrados no sistema."
-        primaryActionLabel="Novo produto"
       />
 
-      <div className="page-grid">
+      <div className="page-grid page-grid--full">
         <SectionCard title="Lista de produtos">
+          <div className="d-flex justify-content-end mb-3">
+            <ProdutoModalForm />
+          </div>
+
           <div className="table-responsive">
             <table className="table align-middle mb-0">
               <thead>
@@ -51,21 +55,11 @@ export default async function ProdutosPage() {
                     <td>{produto.ativo ? 'Sim' : 'Não'}</td>
                     <td>
                       <div className="d-flex gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => {
-                            window.location.href = `#produto-${produto.id}`
-                          }}
-                        >
-                          editar
-                        </button>
-                        <form action={excluirProduto} method="post">
-                          <input type="hidden" name="id" value={produto.id} />
-                          <button type="submit" className="btn btn-sm btn-outline-danger">
-                            excluir
-                          </button>
-                        </form>
+                        <ProdutoModalForm produto={produto} />
+                        <ExcluirProdutoButton
+                          produtoId={produto.id}
+                          produtoNome={produto.nome}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -73,70 +67,6 @@ export default async function ProdutosPage() {
               </tbody>
             </table>
           </div>
-        </SectionCard>
-
-        <SectionCard title="Formulário de produto">
-          <form action={salvarProduto} className="form-stack">
-            <input type="hidden" name="id" value="" />
-
-            <div>
-              <label htmlFor="produtoNome" className="form-label">
-                Nome
-              </label>
-              <input id="produtoNome" name="nome" className="form-control" required />
-            </div>
-
-            <div>
-              <label htmlFor="produtoCodigo" className="form-label">
-                Código SKU
-              </label>
-              <input id="produtoCodigo" name="codigoSku" className="form-control" />
-            </div>
-
-            <div>
-              <label htmlFor="produtoPreco" className="form-label">
-                Preço unitário
-              </label>
-              <input
-                id="produtoPreco"
-                name="precoUnitario"
-                type="number"
-                step="0.01"
-                className="form-control"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="produtoUnidade" className="form-label">
-                Unidade
-              </label>
-              <input id="produtoUnidade" name="unidade" className="form-control" defaultValue="UN" required />
-            </div>
-
-            <div>
-              <label htmlFor="produtoDescricao" className="form-label">
-                Descrição
-              </label>
-              <textarea id="produtoDescricao" name="descricao" className="form-control" rows={4} />
-            </div>
-
-            <div className="form-check">
-              <input id="produtoAtivo" name="ativo" type="checkbox" className="form-check-input" />
-              <label htmlFor="produtoAtivo" className="form-check-label">
-                Ativo
-              </label>
-            </div>
-
-            <div className="d-flex gap-2">
-              <button type="submit" className="btn btn-primary">
-                salvar
-              </button>
-              <button type="reset" className="btn btn-outline-secondary">
-                limpar
-              </button>
-            </div>
-          </form>
         </SectionCard>
       </div>
     </div>

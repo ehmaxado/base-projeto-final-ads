@@ -12,7 +12,34 @@ export type Cliente = {
   observacoes: string | null
 }
 
-export async function salvarCliente(formData: FormData) {
+export type FormActionState = {
+  success: boolean
+  error: string
+}
+
+async function getResponseError(response: Response, fallback: string) {
+  try {
+    const data = (await response.json()) as {
+      mensagem?: string
+      detalhes?: string[]
+    }
+
+    if (Array.isArray(data.detalhes) && data.detalhes.length > 0) {
+      return data.detalhes.join(', ')
+    }
+
+    if (data.mensagem) {
+      return data.mensagem
+    }
+  } catch {}
+
+  return fallback
+}
+
+export async function salvarCliente(
+  _prevState: FormActionState,
+  formData: FormData,
+): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
   const nome = String(formData.get('nome') ?? '').trim()
   const documento = String(formData.get('documento') ?? '').trim() || null
@@ -21,7 +48,10 @@ export async function salvarCliente(formData: FormData) {
   const observacoes = String(formData.get('observacoes') ?? '').trim() || null
 
   if (!nome) {
-    throw new Error('Nome é obrigatório')
+    return {
+      success: false,
+      error: 'Nome é obrigatório',
+    }
   }
 
   const payload = {
@@ -41,10 +71,18 @@ export async function salvarCliente(formData: FormData) {
   })
 
   if (!response.ok) {
-    throw new Error('Erro ao salvar cliente')
+    return {
+      success: false,
+      error: await getResponseError(response, 'Erro ao salvar cliente'),
+    }
   }
 
   revalidatePath('/clientes')
+
+  return {
+    success: true,
+    error: '',
+  }
 }
 
 export async function excluirCliente(formData: FormData) {
