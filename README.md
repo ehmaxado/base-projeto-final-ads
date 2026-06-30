@@ -76,7 +76,7 @@ Isso costuma ser falha temporária de DNS na rede Docker (às vezes com imagens 
 
 | Campo  | Valor |
 |--------|--------|
-| E-mail | `demo@sistema.local` |
+| E-mail | `1` |
 | Senha  | `senha123` |
 
 ## 1. Banco de dados

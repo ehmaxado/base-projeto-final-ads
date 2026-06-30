@@ -6,8 +6,8 @@ const navItems = [
   { href: "/home", label: "Dashboard" },
   { href: "/produtos", label: "Produtos" },
   { href: "/clientes", label: "Clientes" },
-  { href: "/orcamentos", label: "Orcamentos" },
-  { href: "/usuario", label: "Usuario" },
+  { href: "/orcamentos", label: "Orçamentos" },
+  { href: "/usuario", label: "Usuário" },
 ];
 
 // componente da barra lateral
@@ -15,7 +15,7 @@ export default function Sidebar() {
   return (
     <aside className="system-sidebar">
       <div className="sidebar-section">
-        <p className="sidebar-label">aMenu</p>
+        <p className="sidebar-label">Menu</p>
         <nav className="sidebar-nav" aria-label="Menu principal">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="sidebar-link">

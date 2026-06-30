@@ -3,30 +3,30 @@
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { notify } from '@/components/Notify'
-import { excluirProduto, type FormActionState } from './actions'
+import { excluirCliente, type FormActionState } from './actions'
 
-type ExcluirProdutoButtonProps = {
-  produtoId: number
-  produtoNome: string
+type ExcluirClienteButtonProps = {
+  clienteId: number
+  clienteNome: string
 }
 
-export default function ExcluirProdutoButton({
-  produtoId,
-  produtoNome,
-}: ExcluirProdutoButtonProps) {
+export default function ExcluirClienteButton({
+  clienteId,
+  clienteNome,
+}: ExcluirClienteButtonProps) {
   const router = useRouter()
   const initialState: FormActionState = {
     success: false,
     error: '',
   }
   const [state, formAction, pending] = useActionState<FormActionState, FormData>(
-    excluirProduto,
+    excluirCliente,
     initialState,
   )
 
   useEffect(() => {
     if (state.success) {
-      notify('Produto excluído com sucesso.')
+      notify('Cliente excluído com sucesso.')
       router.refresh()
       return
     }
@@ -41,7 +41,7 @@ export default function ExcluirProdutoButton({
       action={formAction}
       onSubmit={(event) => {
         const confirmed = window.confirm(
-          `Excluir o produto "${produtoNome}"?`,
+          `Excluir o cliente "${clienteNome}"?`,
         )
 
         if (!confirmed) {
@@ -49,7 +49,7 @@ export default function ExcluirProdutoButton({
         }
       }}
     >
-      <input type="hidden" name="id" value={produtoId} />
+      <input type="hidden" name="id" value={clienteId} />
       <button
         type="submit"
         className="btn btn-sm btn-outline-danger"

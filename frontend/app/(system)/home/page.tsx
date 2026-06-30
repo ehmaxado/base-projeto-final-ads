@@ -1,5 +1,6 @@
 import PageIntro from "@/components/PageIntro";
 import SectionCard from "@/components/SectionCard";
+import GraficoPizzaStatus from "@/components/GraficoPizzaStatus";
 import { apiServerFetch } from "@/lib/api-server";
 
 type DashboardResumo = {
@@ -164,15 +165,7 @@ export default async function Home() {
 
       <div className="page-grid">
         <SectionCard title="Status dos orçamentos">
-          <div className="placeholder-block">
-            <ul className="mb-0">
-              {data.status.map((item) => (
-                <li key={item.situacao}>
-                  {item.situacao}: {item.total}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <GraficoPizzaStatus dados={data.status} />
         </SectionCard>
 
         <SectionCard title="Quantidade de orçamentos por mês">

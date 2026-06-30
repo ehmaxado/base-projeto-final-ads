@@ -35,7 +35,7 @@ export type OrcamentoPayload = {
   validoAte?: string
   observacoes?: string
   situacao: string
-  itens: OrcamentoItemPayload[]
+  itens?: OrcamentoItemPayload[]
 }
 
 export type FormActionState = {
@@ -67,6 +67,7 @@ export async function salvarOrcamento(
   formData: FormData,
 ): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
+  const itensDirty = formData.get('itensDirty') === 'true'
   const clienteId = Number(formData.get('clienteId') ?? 0)
   const valorDesconto = Number(formData.get('valorDesconto') ?? 0)
   const validoAte = String(formData.get('validoAte') ?? '').trim() || undefined
@@ -102,10 +103,17 @@ export async function salvarOrcamento(
     }
   }
 
-  if (itens.length === 0) {
+  if (!id && itens.length === 0) {
     return {
       success: false,
       error: 'Adicione pelo menos um item ao orçamento',
+    }
+  }
+
+  if (id && itensDirty && itens.length === 0) {
+    return {
+      success: false,
+      error: 'Adicione pelo menos um item válido ou desfaça as alterações nas linhas.',
     }
   }
 
@@ -115,7 +123,7 @@ export async function salvarOrcamento(
     validoAte,
     observacoes,
     situacao,
-    itens,
+    ...(!id || itensDirty ? { itens } : {}),
   }
 
   const endpoint = id ? `/orcamentos/${id}` : '/orcamentos'

@@ -1,8 +1,9 @@
 import PageIntro from '@/components/PageIntro'
 import SectionCard from '@/components/SectionCard'
 import { apiServerFetch } from '@/lib/api-server'
-import { Cliente, excluirCliente } from './actions'
+import { Cliente } from './actions'
 import ClienteModalForm from './cliente-modal-form'
+import ExcluirClienteButton from './excluir-cliente-button'
 
 async function getClientes() {
   const response = await apiServerFetch('/clientes', { cache: 'no-store' })
@@ -46,12 +47,10 @@ export default async function ClientesPage() {
                     <td>
                       <div className="d-flex gap-2">
                         <ClienteModalForm cliente={cliente} />
-                        <form action={excluirCliente} method="post">
-                          <input type="hidden" name="id" value={cliente.id} />
-                          <button type="submit" className="btn btn-sm btn-outline-danger">
-                            excluir
-                          </button>
-                        </form>
+                        <ExcluirClienteButton
+                          clienteId={cliente.id}
+                          clienteNome={cliente.nome}
+                        />
                       </div>
                     </td>
                   </tr>

@@ -85,11 +85,17 @@ export async function salvarCliente(
   }
 }
 
-export async function excluirCliente(formData: FormData) {
+export async function excluirCliente(
+  _prevState: FormActionState,
+  formData: FormData,
+): Promise<FormActionState> {
   const id = String(formData.get('id') ?? '').trim()
 
   if (!id) {
-    throw new Error('ID do cliente é obrigatório')
+    return {
+      success: false,
+      error: 'ID do cliente é obrigatório',
+    }
   }
 
   const response = await apiServerFetch(`/clientes/${id}`, {
@@ -97,8 +103,16 @@ export async function excluirCliente(formData: FormData) {
   })
 
   if (!response.ok) {
-    throw new Error('Erro ao excluir cliente')
+    return {
+      success: false,
+      error: await getResponseError(response, 'Erro ao excluir cliente'),
+    }
   }
 
   revalidatePath('/clientes')
+
+  return {
+    success: true,
+    error: '',
+  }
 }

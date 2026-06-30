@@ -16,7 +16,6 @@ type OrcamentoItem = {
 
 export type OrcamentoModalData = {
   id: number
-  numero: string
   clienteId: number
   situacao: string
   valorDesconto: number
@@ -83,9 +82,11 @@ export default function OrcamentoModalForm({
 }: OrcamentoModalFormProps) {
   const editing = Boolean(orcamento)
   const [items, setItems] = useState<ItemFormState[]>(() => mapItems(orcamento?.itens))
+  const [itensDirty, setItensDirty] = useState(!editing)
 
   function addItem() {
     setItems((current) => [...current, createEmptyItem()])
+    setItensDirty(true)
   }
 
   function updateItem(
@@ -95,12 +96,14 @@ export default function OrcamentoModalForm({
     setItems((current) =>
       current.map((item) => (item.key === key ? updater(item) : item)),
     )
+    setItensDirty(true)
   }
 
   function removeItem(key: string) {
     setItems((current) =>
       current.length === 1 ? current : current.filter((item) => item.key !== key),
     )
+    setItensDirty(true)
   }
 
   return (
@@ -119,6 +122,7 @@ export default function OrcamentoModalForm({
       onOpenChange={(open) => {
         if (open) {
           setItems(mapItems(orcamento?.itens))
+          setItensDirty(!editing)
         }
       }}
     >
@@ -128,6 +132,7 @@ export default function OrcamentoModalForm({
           produtos={produtos}
           orcamento={orcamento}
           items={items}
+          itensDirty={itensDirty}
           addItem={addItem}
           updateItem={updateItem}
           removeItem={removeItem}
@@ -143,6 +148,7 @@ type OrcamentoModalContentProps = {
   produtos: Produto[]
   orcamento?: OrcamentoModalData
   items: ItemFormState[]
+  itensDirty: boolean
   addItem: () => void
   updateItem: (key: string, updater: (item: ItemFormState) => ItemFormState) => void
   removeItem: (key: string) => void
@@ -154,6 +160,7 @@ function OrcamentoModalContent({
   produtos,
   orcamento,
   items,
+  itensDirty,
   addItem,
   updateItem,
   removeItem,
@@ -179,6 +186,7 @@ function OrcamentoModalContent({
   return (
     <form action={formAction} className="form-stack">
       <input type="hidden" name="id" value={orcamento?.id ?? ''} />
+      <input type="hidden" name="itensDirty" value={itensDirty ? 'true' : ''} />
 
       {state.error ? (
         <div className="alert alert-danger mb-0" role="alert">
